@@ -1,5 +1,11 @@
-const not = (p: boolean) => !p
-const and = (p: boolean, q: boolean) => p && q
-const or = (p: boolean, q: boolean) => p || q
-const if_ = (p: boolean, q: boolean) => !p || q
-const iff = (p: boolean, q: boolean) => p == q
+type Unary = (p: boolean) => boolean
+type Binary = (p: boolean, q: boolean) => boolean
+
+const not: Unary = p => !p
+
+const { and, or, if_, iff }: Record<string, Binary> = {
+    and: (p, q) => p && q,
+    or: (p, q) => p || q,
+    if_: (p, q) => !p || q,
+    iff: (p, q) => p == q,
+}
