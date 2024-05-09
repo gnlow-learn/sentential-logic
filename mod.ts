@@ -104,10 +104,32 @@ const fnify =
         .get()
 }
 
-console.log(strify(lex(tokenize("(~a|b)"))))
-console.log(fnify(lex(tokenize("(~a|b)")))({
-    a: true,
-    b: true,
-    c: true,
-    d: true,
-}))
+{
+    const $ = makeContainer({
+        strify,
+        fnify,
+        lex,
+        tokenize,
+    })
+
+    console.log(
+        $("(~a|b)")
+        .tokenize()
+        .lex()
+        .strify()
+        .get()
+    )
+    console.log(
+        $("(~a|b)")
+        .tokenize()
+        .lex()
+        .fnify()
+        .get()
+        ({
+            a: true,
+            b: true,
+            c: true,
+            d: true,
+        })
+    )
+}
