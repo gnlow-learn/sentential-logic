@@ -58,9 +58,13 @@ const lex =
     }
 
     ;[...tokens].forEach(token => {
-        // console.log(token, ops, vars)
+        console.log(token, ops, vars)
         if (isOp(token) || token == "(") ops.push(token)
-        else if (/[a-zA-Z]/.test(token)) vars.push(token)
+        else if (/[a-zA-Z]/.test(token)) {
+            ops.push("(")
+            vars.push(token)
+            flush()
+        }
         else if (token == ")") {
             flush()
         }
@@ -91,8 +95,8 @@ const fnify =
     )
 }
 
-console.log(strify(lex(tokenize("!((a|b)->c)&d"))))
-console.log(fnify(lex(tokenize("!((a|b)->c)&d")))({
+console.log(strify(lex(tokenize("(~a|b)"))))
+console.log(fnify(lex(tokenize("(~a|b)")))({
     a: true,
     b: true,
     c: true,
