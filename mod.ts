@@ -16,7 +16,7 @@ const char = {
     IF:  "→",
     IFF: "↔",
     NOT: "~",
-} as const
+}
 
 const tokenize =
 (str: string) =>
@@ -27,19 +27,38 @@ const tokenize =
         .replaceAll("&",   char.AND)
         .replaceAll("~",   char.NOT)
 
+const isOp =
+(c: string) =>
+    Object.values(char).includes(c)
+
+type Expr =
+    | string
+    | [string, Expr]
+    | [string, Expr, Expr]
+
 const lex =
-(tokens: string) =>
-    tokens == "" ? []
-    : /\(/.test(tokens) ? [
-        ...lex(/^(.*?)\(/.exec(tokens)?.[1] || ""),
-        ...lex(/\((.*)\)/.exec(tokens)?.[1] || ""),
-        ...lex(/\)([^)]*?)$/.exec(tokens)?.[1] || "",)
-    ]
-    : tokens[0] == char.NOT ? ["NOT", tokens.substring(1)]
-    : [
-        Object.entries(char).find(([k, v]) => v == tokens[1]),
-        tokens[0],
-        tokens[2],
-    ]
+(tokens: string) => {
+    const ops: string[] = []
+    const vars: Expr[] = []
+    ;[...tokens].forEach(token => {
+        if (isOp(token)) ops.push(token)
+        else if (/[a-zA-Z]/.test(token)) vars.push(token)
+        else if (token == ")") {
+            if (ops[ops.length-1] == char.NOT) {
+                vars.push([ops.pop()!, vars.pop()!])
+            } else {
+                vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
+            }
+        }
+    })
+    if (ops.length != 0) {
+        if (ops[ops.length-1] == char.NOT) {
+            vars.push([ops.pop()!, vars.pop()!])
+        } else {
+            vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
+        }
+    }
+    return vars[0]
+}
 
 console.log(lex(tokenize("(p<->q)->r")))
