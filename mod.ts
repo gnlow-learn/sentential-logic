@@ -12,7 +12,7 @@ const { and, or, if_, iff }: Record<string, Binary> = {
 
 const char = {
     AND: "&",
-    OR:  "v",
+    OR:  "|",
     IF:  "→",
     IFF: "↔",
     NOT: "~",
@@ -25,7 +25,7 @@ const tokenize =
         .replaceAll("->",  char.IF)
         .replaceAll("|",   char.OR)
         .replaceAll("&",   char.AND)
-        .replaceAll("~",   char.NOT)
+        .replaceAll("!",   char.NOT)
 
 const isOp =
 (c: string) =>
@@ -51,7 +51,7 @@ const lex =
             }
         }
     })
-    if (ops.length != 0) {
+    while (ops.length != 0) {
         if (ops[ops.length-1] == char.NOT) {
             vars.push([ops.pop()!, vars.pop()!])
         } else {
@@ -61,4 +61,4 @@ const lex =
     return vars[0]
 }
 
-console.log(lex(tokenize("(p<->q)->r")))
+console.log(lex(tokenize("!((a|b)->c)&d")))
