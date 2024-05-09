@@ -1,13 +1,12 @@
 type Unary = (p: boolean) => boolean
 type Binary = (p: boolean, q: boolean) => boolean
 
-const not: Unary = p => !p
-
-const { and, or, if_, iff }: Record<string, Binary> = {
-    and: (p, q) => p && q,
-    or: (p, q) => p || q,
-    if_: (p, q) => !p || q,
-    iff: (p, q) => p == q,
+const fn: Record<string, Unary | Binary> = {
+    AND: (p, q) => p && q,
+    OR: (p, q) => p || q,
+    IF: (p, q) => !p || q,
+    IFF: (p, q) => p == q,
+    NOT: (p => !p) as Unary,
 }
 
 const char = {
@@ -82,4 +81,20 @@ const strify =
     return `${getOpName(op)}(${exprs.map(strify).join(",")})`
 }
 
+const fnify =
+(expr: Expr): (val: Record<string, boolean>) => boolean => {
+    if (typeof expr == "string")
+        return val => val[expr]
+    const [op, ...exprs] = expr
+    return val => fn[getOpName(op)](
+        ...<[boolean, boolean]>exprs.map(expr => fnify(expr)(val))
+    )
+}
+
 console.log(strify(lex(tokenize("!((a|b)->c)&d"))))
+console.log(fnify(lex(tokenize("!((a|b)->c)&d")))({
+    a: true,
+    b: true,
+    c: true,
+    d: true,
+}))
