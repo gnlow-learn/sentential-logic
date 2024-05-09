@@ -58,7 +58,7 @@ const lex =
     }
 
     ;[...tokens].forEach(token => {
-        console.log(token, ops, vars)
+        // console.log(token, ops, vars)
         if (isOp(token) || token == "(") ops.push(token)
         else if (/[a-zA-Z]/.test(token)) {
             ops.push("(")
@@ -85,14 +85,23 @@ const strify =
     return `${getOpName(op)}(${exprs.map(strify).join(",")})`
 }
 
+import { makeContainer } from "https://deno.land/x/futil@0.1.1/mod.ts"
+
+const $ = makeContainer({})
+
 const fnify =
 (expr: Expr): (val: Record<string, boolean>) => boolean => {
     if (typeof expr == "string")
         return val => val[expr]
     const [op, ...exprs] = expr
-    return val => fn[getOpName(op)](
-        ...<[boolean, boolean]>exprs.map(expr => fnify(expr)(val))
-    )
+    return val => $(val)
+        .pipe(val => fn[getOpName(op)](
+            ...<[boolean, boolean]>exprs.map(expr => fnify(expr)(val))
+        ))
+        .bypass(tf => console.log(
+            strify(expr), "=", tf,
+        ))
+        .get()
 }
 
 console.log(strify(lex(tokenize("(~a|b)"))))
