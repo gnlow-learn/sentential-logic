@@ -59,7 +59,7 @@ const lex =
     }
 
     ;[...tokens].forEach(token => {
-        console.log(token, ops, vars)
+        // console.log(token, ops, vars)
         if (isOp(token) || token == "(") ops.push(token)
         else if (/[a-zA-Z]/.test(token)) vars.push(token)
         else if (token == ")") {
@@ -70,4 +70,16 @@ const lex =
     return vars[0]
 }
 
-console.log(lex(tokenize("!((a|b)->c)&d")))
+const getOpName =
+(op: string) =>
+    Object.entries(char).find(([k, v]) => v == op)![0]
+
+const strify =
+(expr: Expr): string => {
+    if (typeof expr == "string")
+        return expr
+    const [op, ...exprs] = expr
+    return `${getOpName(op)}(${exprs.map(strify).join(",")})`
+}
+
+console.log(strify(lex(tokenize("!((a|b)->c)&d"))))
