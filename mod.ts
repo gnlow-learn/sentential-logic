@@ -113,23 +113,22 @@ const fnify =
     })
 
     console.log(
-        $("(~a|b)")
+        $("~((p|~q)->r)")
         .tokenize()
         .lex()
         .strify()
         .get()
     )
     console.log(
-        $("(~a|b)")
+        $("~((p|~q)->r)")
         .tokenize()
         .lex()
         .fnify()
         .get()
         ({
-            a: true,
-            b: true,
-            c: true,
-            d: true,
+            p: true,
+            q: true,
+            r: true,
         })
     )
 }
