@@ -41,13 +41,23 @@ const lex =
     const ops: string[] = []
     const vars: Expr[] = []
     ;[...tokens].forEach(token => {
-        if (isOp(token)) ops.push(token)
+        console.log(token, ops, vars)
+        if (isOp(token) || token == "(") ops.push(token)
         else if (/[a-zA-Z]/.test(token)) vars.push(token)
         else if (token == ")") {
-            if (ops[ops.length-1] == char.NOT) {
-                vars.push([ops.pop()!, vars.pop()!])
-            } else {
-                vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
+            while (ops.length != 0) {
+                if (ops[ops.length-1] == "(") {
+                    ops.pop()
+                    while (ops[ops.length-1] == char.NOT) {
+                        vars.push([ops.pop()!, vars.pop()!])
+                    }
+                    break
+                }
+                if (ops[ops.length-1] == char.NOT) {
+                    vars.push([ops.pop()!, vars.pop()!])
+                } else {
+                    vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
+                }
             }
         }
     })
