@@ -40,34 +40,33 @@ const lex =
 (tokens: string) => {
     const ops: string[] = []
     const vars: Expr[] = []
+
+    const flush = () => {
+        while (ops.length != 0) {
+            if (ops[ops.length-1] == "(") {
+                ops.pop()
+                while (ops[ops.length-1] == char.NOT) {
+                    vars.push([ops.pop()!, vars.pop()!])
+                }
+                break
+            }
+            if (ops[ops.length-1] == char.NOT) {
+                vars.push([ops.pop()!, vars.pop()!])
+            } else {
+                vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
+            }
+        }
+    }
+
     ;[...tokens].forEach(token => {
         console.log(token, ops, vars)
         if (isOp(token) || token == "(") ops.push(token)
         else if (/[a-zA-Z]/.test(token)) vars.push(token)
         else if (token == ")") {
-            while (ops.length != 0) {
-                if (ops[ops.length-1] == "(") {
-                    ops.pop()
-                    while (ops[ops.length-1] == char.NOT) {
-                        vars.push([ops.pop()!, vars.pop()!])
-                    }
-                    break
-                }
-                if (ops[ops.length-1] == char.NOT) {
-                    vars.push([ops.pop()!, vars.pop()!])
-                } else {
-                    vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
-                }
-            }
+            flush()
         }
     })
-    while (ops.length != 0) {
-        if (ops[ops.length-1] == char.NOT) {
-            vars.push([ops.pop()!, vars.pop()!])
-        } else {
-            vars.push([ops.pop()!, ...vars.splice(-2) as [Expr, Expr]])
-        }
-    }
+    flush()
     return vars[0]
 }
 
